@@ -10,6 +10,7 @@ namespace EF.ConsoleApp
     {
         static void Main(string[] args)
         {
+            Console.ReadLine();
         }
     }
 }
