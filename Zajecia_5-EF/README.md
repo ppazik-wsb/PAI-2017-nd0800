@@ -15,3 +15,4 @@
    2. W ```Server name``` wpisaæ ```(localdb)\mssqllocaldb```
    3. Nastêpnie poni¿ej w ```Select or enter database name``` nale¿y wybraæ Nasz¹ bazê danych ```EFConsoleApp```
    4. W bazie danych powinna zostaæ ju¿ stworzona tabela dla DataSet-u z ostatio stworzonej migracji. Zawartoœæ migracji opisana jest w postaci kodu Ÿród³owego w pliku ```Migrations/201710291448013_Initial Create.cs```
+10. Seed - posianie wstêpnych danych i/lub danych testowych.
