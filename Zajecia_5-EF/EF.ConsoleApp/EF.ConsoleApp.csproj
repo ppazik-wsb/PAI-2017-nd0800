@@ -52,6 +52,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataContexts\DefaultAppDbConnection.cs" />
+    <Compile Include="Migrations\201710291448013_Initial Create.cs" />
+    <Compile Include="Migrations\201710291448013_Initial Create.Designer.cs">
+      <DependentUpon>201710291448013_Initial Create.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Dish.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -61,7 +67,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DataContexts\" />
+    <EmbeddedResource Include="Migrations\201710291448013_Initial Create.resx">
+      <DependentUpon>201710291448013_Initial Create.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
