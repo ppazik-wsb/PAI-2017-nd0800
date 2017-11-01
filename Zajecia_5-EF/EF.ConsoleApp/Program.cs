@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using EF.ConsoleApp.DataContexts;
+using EF.ConsoleApp.Models;
 
 namespace EF.ConsoleApp
 {
@@ -24,19 +27,77 @@ namespace EF.ConsoleApp
 
             using (var dbCtx = new DefaultAppDbConnection())
             {
-                // Iterujemy przez wszystkie wpisy w zbiorze (DataSet) dotyczącym Dań. 
-                foreach (var item in dbCtx.Dishes)
+                do
                 {
-                    Console.WriteLine($@"{item.DishId} {item.DishName} - {item.Price} \@ {item.CreatedBy}");
-                }
+                    PrintAllDishes(dbCtx.Dishes.ToList());
 
-                Console.WriteLine($"W bazie istniej aktualnie {dbCtx.Dishes.Count()} dań!");
-                Console.WriteLine($"\tSrednia cena dania to {dbCtx.Dishes.Average( m => m.Price )}, " +
-                                  $"przedzial cenowy od {dbCtx.Dishes.Min( m => m.Price )} " +
-                                  $"do {dbCtx.Dishes.Max( m => m.Price )}");
+                    Console.Write("Czy dodać nowe danie? (y/n) [Def n]: ");
+                    if (Console.ReadLine()?.ToUpper() == "Y")
+                    {
+                        InsertNewManualDish(dbCtx.Dishes);
+                        dbCtx.SaveChanges();
+                    }
+
+                    Console.Write("Czy powtórzyć? (y/n) [Def n]: ");
+                } while (Console.ReadLine()?.ToUpper() == "Y");
             }
 
+            Console.Write("Wciśnij <ENTER> by zakończyć program! ");
             Console.ReadLine();
+        }
+
+
+        /// <summary>
+        /// Metoda do wypisania wszystkich potraw w kolekcji
+        /// </summary>
+        /// <param name="dishes">Kolekcja z potrawami</param>
+        /// <param name="printSummary">Flaga czy wyświetlić podsumowanie kolekcji</param>
+        static void PrintAllDishes(ICollection<Dish> dishes, bool printSummary = true)
+        {
+            // Iterujemy przez wszystkie wpisy w kolekcji przekazanej do funkcji. 
+            foreach (var item in dishes)
+            {
+                Console.WriteLine($"{item.DishId} {item.DishName} - {item.Price} @ {item.CreatedBy}");
+            }
+
+            if (printSummary)
+            {
+                Console.WriteLine("****************");
+                Console.WriteLine($"W bazie istniej aktualnie {dishes.Count()} dań!");
+                Console.WriteLine($"\tSrednia cena dania to {dishes.Average(m => m.Price)}, " +
+                                  $"przedzial cenowy od {dishes.Min(m => m.Price)} " +
+                                  $"do {dishes.Max(m => m.Price)}");
+                Console.WriteLine("****************");
+            }
+        }
+
+        /// <summary>
+        /// Ręczne dodanie (wpisując z konsoli) danie do bazy danych.
+        /// </summary>
+        /// <param name="dbSet">DbSet do którego należy dodać danie</param>
+        static void InsertNewManualDish(DbSet<Dish> dbSet)
+        {
+            var newDish = new Dish();
+
+            Console.WriteLine("*** Dodawanie nowego dania! ***");
+            do
+            {
+                Console.Write("Podaj nazwę dania: ");
+
+                newDish.DishName = Console.ReadLine();
+            } while (string.IsNullOrWhiteSpace(newDish.DishName));
+
+            Console.Write("Podaj cenę dania: ");
+
+            double price;
+            if (double.TryParse(Console.ReadLine(), out price) && price > 0)
+            {
+                newDish.Price = price;
+            }
+
+            newDish.CreatedBy = Environment.UserName;
+
+            dbSet.Add(newDish);
         }
     }
 }

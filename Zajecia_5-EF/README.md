@@ -19,10 +19,19 @@
 11. Pobieranie dany poprzez ```DataSet<Dish>``` wewn¹trz utworzonego ```DbContext```. Przyk³ad w definicji cia³a programu.
 ```C#
 using (var dbCtx = new DefaultAppDbConnection())
+{
+	foreach (var item in dbCtx.Dishes)
 	{
-		foreach (var item in dbCtx.Dishes)
-		{
-			Console.WriteLine($@"{item.DishId} {item.DishName} - {item.Price} \@ {item.CreatedBy}");
-		}
+		Console.WriteLine($@"{item.DishId} {item.DishName} - {item.Price} \@ {item.CreatedBy}");
 	}
+}
+```
+12. Dodanie nowego wpisu do tabeli (_DbSet_). Wypisanie wszystkich rekordów.
+```C#
+using (var dbCtx = new DefaultAppDbConnection())
+{
+	var newDish = new Dish() { dishName = "Nazwa", price = 1.99, CreatedBy = Environment.UserName}
+	dbCtx.Dishes.Add(newDish);
+	dbCtx.SaveChanges();
+}
 ```
