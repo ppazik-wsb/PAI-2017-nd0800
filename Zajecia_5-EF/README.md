@@ -39,7 +39,26 @@ using (var dbCtx = new DefaultAppDbConnection())
 ```C#
 using (var dbCtx = new DefaultAppDbConnection())
 {
-	var dish = dbSet.Where(q => q.DishName.Contains(query)).FirstOrDefault();
+	var dish = dbSet.Where(q => q.DishName.Contains("Pierogi")).FirstOrDefault();
+	Console.WriteLine(dish.dishName);
+}
+```
+14. CR**U**D - Aktualizacja krotki (_DbSet_).
+```C#
+using (var dbCtx = new DefaultAppDbConnection())
+{
+	var dish = dbSet.Where(q => q.DishName.Contains("Pierogi")).Single();
+	dish.DishName = "Super Pierogi!";
+	dbCtx.SaveChanges();
+	Console.WriteLine(dish.dishName);
+}
+```
+15. CRU**D** - Usuwanie krotki z tabeli (_DbSet_).
+```C#
+using (var dbCtx = new DefaultAppDbConnection())
+{
+	var dish = dbSet.Where(q => q.DishName.Contains("Pierogi tradycyjne z wody")).Single();
+	dbCtx.Remove(dish);
 	Console.WriteLine(dish.dishName);
 }
 ```
