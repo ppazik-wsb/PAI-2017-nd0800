@@ -10,7 +10,7 @@ namespace EF.ConsoleApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             // Korzystamy z bloku using () {}, by upewnić się, że wraz z zakończeniem bloku zostanie usunięty 
             // stworzony na potrzeby tego bloku kontekst do bazy danych. Za każdym razem gdy będziemy chcieli
@@ -25,27 +25,37 @@ namespace EF.ConsoleApp
 
             using (var dbCtx = new DefaultAppDbConnection())
             {
-                do
+                bool closeApp = false;
+                while (closeApp == false)
                 {
-                    Console.Clear();
-
-                    PrintAllDishes(dbCtx.Dishes.ToList());
-
-                    Console.Write("\nCzy dodać nowe danie? (y/n) [Def n]: ");
-                    if (Console.ReadLine()?.ToUpper() == "Y")
+                    switch (Menu())
                     {
-                        InsertNewManualDish(dbCtx.Dishes);
-                        dbCtx.SaveChanges();
+                        case 1: // Wyświetlanie wszystkich wpisów
+                            PrintAllDishes(dbCtx.Dishes.ToList());
+                            break;
+                        case 2: // Create - Dodawanie nowego wpisu
+                            InsertNewManualDish(dbCtx.Dishes);
+                            dbCtx.SaveChanges();
+                            Console.WriteLine();
+                            break;
+                        case 3: // Pobieranie konkretnego wpisu
+                            Console.WriteLine(PrintDish(FindDishByName(dbCtx.Dishes)));
+                            break;
+                        case 4: // Aktualizacja wpisu
+                            break;
+                        case 5: // Usuwanie wpisu
+
+                            break;
+                        case 0: return 0;
                     }
 
-                    Console.Write("\nCzy powtórzyć? (y/n) [Def n]: ");
-                } while (Console.ReadLine()?.ToUpper() == "Y");
+                    Console.Write("\n\nWcisnij dowolny klawisz by wrócić do głównego menu!");
+                    Console.ReadKey();
+                }
+
+                return 0;
             }
-
-            Console.Write("\nWciśnij <ENTER> by zakończyć program! ");
-            Console.ReadLine();
         }
-
 
         /// <summary>
         /// Metoda do wypisania wszystkich potraw w kolekcji
@@ -54,10 +64,11 @@ namespace EF.ConsoleApp
         /// <param name="printSummary">Flaga czy wyświetlić podsumowanie kolekcji</param>
         static void PrintAllDishes(ICollection<Dish> dishes, bool printSummary = true)
         {
+            Console.Clear();
             // Iterujemy przez wszystkie wpisy w kolekcji przekazanej do funkcji. 
             foreach (var item in dishes)
             {
-                Console.WriteLine( PrintDish(item) );
+                Console.WriteLine(PrintDish(item));
             }
 
             if (printSummary)
@@ -70,7 +81,20 @@ namespace EF.ConsoleApp
             }
         }
 
-        static string PrintDish(Dish dish) => $"{dish.DishId} {dish.DishName} - {dish.Price} @ {dish.CreatedBy}";
+        static Dish FindDishByName(DbSet<Dish> dbSet)
+        {
+            Console.Clear();
+
+            Console.Write("Podaj nazwę dania: ");
+            string query = Console.ReadLine();
+
+            return dbSet.Where(q => q.DishName.Contains(query)).FirstOrDefault();
+        }
+
+        static string PrintDish(Dish dish)
+        {
+            return $"{dish.DishId} {dish.DishName} - {dish.Price} @ {dish.CreatedBy}";
+        }
 
         static string PrintSummary(ICollection<Dish> dishes)
         {
@@ -82,7 +106,7 @@ namespace EF.ConsoleApp
                              $"do {dishes.Max(m => m.Price)}");
 
             return outString.ToString();
-        } 
+        }
 
         /// <summary>
         /// Ręczne dodanie (wpisując z konsoli) danie do bazy danych.
@@ -92,7 +116,9 @@ namespace EF.ConsoleApp
         {
             var newDish = new Dish();
 
-            Console.WriteLine("\n\n*** Dodawanie nowego dania! ***");
+            Console.Clear();
+            Console.WriteLine("*** Dodawanie nowego dania! ***");
+
             do
             {
                 Console.Write("Podaj nazwę dania: ");
@@ -111,6 +137,32 @@ namespace EF.ConsoleApp
             newDish.CreatedBy = Environment.UserName;
 
             dbSet.Add(newDish);
+        }
+
+        static int Menu()
+        {
+            Console.Clear();
+
+            Console.WriteLine("\n***\nMenu Główne\n***\n\n");
+
+            Console.WriteLine("1. Wyświetl zawartość bazy danych");
+            Console.WriteLine("2. Utwórz wpis");
+            Console.WriteLine("3. Znajdź wpis");
+            Console.WriteLine("4. Zaktualizuj wpis");
+            Console.WriteLine("5. Usuń wpis");
+
+            Console.WriteLine("\n0. Wyjdź");
+
+            Console.Write("\n\nCo chcesz zrobić: ");
+
+            int result;
+            while (!int.TryParse(Console.ReadLine(), out result))
+            {
+                Console.WriteLine("Nie znane polecenie, spróbuj ponownie!");
+                Console.WriteLine("Co chcesz zrobić: ");
+            }
+
+            return result;
         }
     }
 }

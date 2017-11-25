@@ -26,12 +26,20 @@ using (var dbCtx = new DefaultAppDbConnection())
 	}
 }
 ```
-12. Dodanie nowego wpisu do tabeli (_DbSet_). Wypisanie wszystkich rekordów.
+12. **C**RUD - Dodanie nowego wpisu do tabeli (_DbSet_). Wypisanie wszystkich rekordów. 
 ```C#
 using (var dbCtx = new DefaultAppDbConnection())
 {
 	var newDish = new Dish() { dishName = "Nazwa", price = 1.99, CreatedBy = Environment.UserName}
 	dbCtx.Dishes.Add(newDish);
 	dbCtx.SaveChanges();
+}
+```
+13. C**R**UD - Odczytywanie konkretnej krotki z tabeli (_DbSet_).
+```C#
+using (var dbCtx = new DefaultAppDbConnection())
+{
+	var dish = dbSet.Where(q => q.DishName.Contains(query)).FirstOrDefault();
+	Console.WriteLine(dish.dishName);
 }
 ```
