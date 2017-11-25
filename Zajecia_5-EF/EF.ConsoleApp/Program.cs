@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using EF.ConsoleApp.DataContexts;
 using EF.ConsoleApp.Models;
 
@@ -29,20 +27,22 @@ namespace EF.ConsoleApp
             {
                 do
                 {
+                    Console.Clear();
+
                     PrintAllDishes(dbCtx.Dishes.ToList());
 
-                    Console.Write("Czy dodać nowe danie? (y/n) [Def n]: ");
+                    Console.Write("\nCzy dodać nowe danie? (y/n) [Def n]: ");
                     if (Console.ReadLine()?.ToUpper() == "Y")
                     {
                         InsertNewManualDish(dbCtx.Dishes);
                         dbCtx.SaveChanges();
                     }
 
-                    Console.Write("Czy powtórzyć? (y/n) [Def n]: ");
+                    Console.Write("\nCzy powtórzyć? (y/n) [Def n]: ");
                 } while (Console.ReadLine()?.ToUpper() == "Y");
             }
 
-            Console.Write("Wciśnij <ENTER> by zakończyć program! ");
+            Console.Write("\nWciśnij <ENTER> by zakończyć program! ");
             Console.ReadLine();
         }
 
@@ -57,19 +57,32 @@ namespace EF.ConsoleApp
             // Iterujemy przez wszystkie wpisy w kolekcji przekazanej do funkcji. 
             foreach (var item in dishes)
             {
-                Console.WriteLine($"{item.DishId} {item.DishName} - {item.Price} @ {item.CreatedBy}");
+                Console.WriteLine( PrintDish(item) );
             }
 
             if (printSummary)
             {
-                Console.WriteLine("****************");
-                Console.WriteLine($"W bazie istniej aktualnie {dishes.Count()} dań!");
-                Console.WriteLine($"\tSrednia cena dania to {dishes.Average(m => m.Price)}, " +
-                                  $"przedzial cenowy od {dishes.Min(m => m.Price)} " +
-                                  $"do {dishes.Max(m => m.Price)}");
-                Console.WriteLine("****************");
+                Console.WriteLine("\n****************");
+
+                Console.WriteLine(PrintSummary(dishes));
+
+                Console.WriteLine("****************\n");
             }
         }
+
+        static string PrintDish(Dish dish) => $"{dish.DishId} {dish.DishName} - {dish.Price} @ {dish.CreatedBy}";
+
+        static string PrintSummary(ICollection<Dish> dishes)
+        {
+            StringBuilder outString = new StringBuilder();
+
+            outString.Append($"W bazie istniej aktualnie {dishes.Count()} dań!\n");
+            outString.Append($"Srednia cena dania to {dishes.Average(m => m.Price)}, " +
+                             $"przedzial cenowy od {dishes.Min(m => m.Price)} " +
+                             $"do {dishes.Max(m => m.Price)}");
+
+            return outString.ToString();
+        } 
 
         /// <summary>
         /// Ręczne dodanie (wpisując z konsoli) danie do bazy danych.
@@ -79,7 +92,7 @@ namespace EF.ConsoleApp
         {
             var newDish = new Dish();
 
-            Console.WriteLine("*** Dodawanie nowego dania! ***");
+            Console.WriteLine("\n\n*** Dodawanie nowego dania! ***");
             do
             {
                 Console.Write("Podaj nazwę dania: ");
