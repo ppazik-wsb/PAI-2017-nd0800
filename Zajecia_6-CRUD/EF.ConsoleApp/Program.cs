@@ -11,6 +11,9 @@ namespace EF.ConsoleApp
 {
     class Program
     {
+        // Unit of Work pattern
+        private static UnitOfWork unitOfWork = new UnitOfWork();
+
         static int Main(string[] args)
         {
             // Korzystamy z bloku using () {}, by upewnić się, że wraz z zakończeniem bloku zostanie usunięty 
@@ -26,8 +29,6 @@ namespace EF.ConsoleApp
 
             using (var dbCtx = new DefaultAppDbConnection())
             {
-                DishRepository dishes = new DishRepository(dbCtx);
-
                 bool closeApp = false;
                 while (closeApp == false)
                 {
@@ -37,24 +38,24 @@ namespace EF.ConsoleApp
                         {
                             case 1: // Wyświetlanie wszystkich wpisów
                                 Console.Clear();
-                                PrintAllDishes(dishes.GetAll());
+                                PrintAllDishes(unitOfWork.DishRepository.GetAll());
                                 break;
                             case 2: // Create - Dodawanie nowego wpisu
-                                InsertNewManualDish(dishes);
-                                dishes.SaveChanges();
+                                InsertNewManualDish(unitOfWork.DishRepository);
+                                unitOfWork.DishRepository.SaveChanges();
                                 break;
                             case 3: // Pobieranie konkretnego wpisu
-                                Console.WriteLine(PrintDish(FindDishByName(dishes)));
+                                Console.WriteLine(PrintDish(FindDishByName(unitOfWork.DishRepository)));
                                 break;
                             case 4: // Aktualizacja wpisu
                                 Console.Clear();
-                                EditDish(FindDishByName(dishes));
-                                dishes.SaveChanges();
+                                EditDish(FindDishByName(unitOfWork.DishRepository));
+                                unitOfWork.DishRepository.SaveChanges();
                                 Console.WriteLine("Zaktualizowano wpis!");
                                 break;
                             case 5: // Usuwanie wpisu
                                 Console.Clear();
-                                RemoveDish(dishes);
+                                RemoveDish(unitOfWork.DishRepository);
                                 dbCtx.SaveChanges();
                                 Console.WriteLine("Usunięto wpis!");
                                 break;

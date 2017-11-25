@@ -3,3 +3,4 @@
 Projekt bazuje na poprzednich zajêciach [Zajecia 5.](../Zajecia_5-EF)
 
 1. Repository pattern
+2. Unit of Work pattern
