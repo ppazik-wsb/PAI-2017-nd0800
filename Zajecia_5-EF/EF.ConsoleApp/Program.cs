@@ -28,33 +28,104 @@ namespace EF.ConsoleApp
                 bool closeApp = false;
                 while (closeApp == false)
                 {
-                    switch (Menu())
+                    try
                     {
-                        case 1: // Wyświetlanie wszystkich wpisów
-                            PrintAllDishes(dbCtx.Dishes.ToList());
-                            break;
-                        case 2: // Create - Dodawanie nowego wpisu
-                            InsertNewManualDish(dbCtx.Dishes);
-                            dbCtx.SaveChanges();
-                            Console.WriteLine();
-                            break;
-                        case 3: // Pobieranie konkretnego wpisu
-                            Console.WriteLine(PrintDish(FindDishByName(dbCtx.Dishes)));
-                            break;
-                        case 4: // Aktualizacja wpisu
-                            break;
-                        case 5: // Usuwanie wpisu
-
-                            break;
-                        case 0: return 0;
+                        switch (Menu())
+                        {
+                            case 1: // Wyświetlanie wszystkich wpisów
+                                Console.Clear();
+                                PrintAllDishes(dbCtx.Dishes.ToList());
+                                break;
+                            case 2: // Create - Dodawanie nowego wpisu
+                                InsertNewManualDish(dbCtx.Dishes);
+                                dbCtx.SaveChanges();
+                                break;
+                            case 3: // Pobieranie konkretnego wpisu
+                                Console.WriteLine(PrintDish(FindDishByName(dbCtx.Dishes)));
+                                break;
+                            case 4: // Aktualizacja wpisu
+                                Console.Clear();
+                                EditDish(dbCtx.Dishes, FindDishByName(dbCtx.Dishes));
+                                dbCtx.SaveChanges();
+                                Console.WriteLine("Zaktualizowano wpis!");
+                                break;
+                            case 5: // Usuwanie wpisu
+                                Console.Clear();
+                                RemoveDish(dbCtx.Dishes);
+                                dbCtx.SaveChanges();
+                                Console.WriteLine("Usunięto wpis!");
+                                break;
+                            case 0: return 0;
+                        }
                     }
+                    catch (Exception e)
+                    {
+                        if (e is InvalidOperationException || e is ArgumentNullException)
+                        {
+                            Console.WriteLine("Uwaga! Poważny błąd: ");
+                            Console.WriteLine(e.Message);
 
-                    Console.Write("\n\nWcisnij dowolny klawisz by wrócić do głównego menu!");
-                    Console.ReadKey();
+
+                            Console.Write("\n\nCzy wyświetlić stack trace? [y/n]: ");
+
+                            if (Console.ReadLine().ToUpper() == "Y")
+                                Console.WriteLine(e.StackTrace);
+                        }
+                        else
+                        {
+                            throw e;
+                        }
+                    }
+                    finally
+                    {
+                        Console.Write("\n\nWcisnij dowolny klawisz by wrócić do głównego menu!");
+                        Console.ReadKey();
+                    }
                 }
 
                 return 0;
             }
+        }
+
+        private static void EditDish(DbSet<Dish> dishes, Dish dish)
+        {
+            Console.Clear();
+            Console.WriteLine("Znaleziono wpis!");
+            Console.WriteLine(PrintDish(dish));
+
+            Console.WriteLine("\nJeśli pozostawisz pole puste, jego wartość nie zostanie zmieniona");
+
+            Console.Write($"\nPodaj nową nazwę dania [aktualna nazwa {dish.DishName}]: ");
+            string name = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                dish.DishName = name;
+            }
+            else
+            {
+                Console.WriteLine("Nazwa nie zostanie zmieniona!");
+            }
+
+            Console.Write($"Podaj nową cenę dania [aktualna cena {dish.Price}]: ");
+            string cena = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(cena))
+            {
+                double price;
+                if (double.TryParse(cena, out price) && price > 0)
+                {
+                    dish.Price = price;
+                }
+                else
+                {
+                    Console.WriteLine("Błąd przy zmianie ceny, cena nie zostanie zmieniona!");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Cena nie zostanie zmieniona!");
+            }
+
+            dish.CreatedBy = Environment.UserName;
         }
 
         /// <summary>
@@ -64,7 +135,6 @@ namespace EF.ConsoleApp
         /// <param name="printSummary">Flaga czy wyświetlić podsumowanie kolekcji</param>
         static void PrintAllDishes(ICollection<Dish> dishes, bool printSummary = true)
         {
-            Console.Clear();
             // Iterujemy przez wszystkie wpisy w kolekcji przekazanej do funkcji. 
             foreach (var item in dishes)
             {
@@ -88,7 +158,28 @@ namespace EF.ConsoleApp
             Console.Write("Podaj nazwę dania: ");
             string query = Console.ReadLine();
 
-            return dbSet.Where(q => q.DishName.Contains(query)).FirstOrDefault();
+            return dbSet.Where(q => q.DishName.Contains(query)).First();
+        }
+
+        static Dish FindDishById(DbSet<Dish> dbSet, int idDish)
+        {
+            return dbSet.Where(q => q.DishId == idDish).Single();
+        }
+
+        static void RemoveDish(DbSet<Dish> dbSet)
+        {
+            Console.WriteLine("Usuwanie wpisu");
+
+            PrintAllDishes(dbSet.ToList());
+
+            Console.Write("\n\nPodaj ID dania do usunięcia: ");
+            int idDish;
+            while (!int.TryParse(Console.ReadLine(), out idDish))
+            {
+                Console.Write("Podaj poprawny ID: ");
+            }
+
+            dbSet.Remove(FindDishById(dbSet, idDish));
         }
 
         static string PrintDish(Dish dish)
