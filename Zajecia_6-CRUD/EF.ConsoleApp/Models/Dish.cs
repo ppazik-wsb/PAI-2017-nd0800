@@ -10,7 +10,7 @@ namespace EF.ConsoleApp.Models
     /// <summary>
     /// Klasa reprezentująca jedno danie w systemie.
     /// </summary>
-    class Dish
+    public class Dish
     {
         /// <summary>
         /// Poprzez konwencję w EF wszystkie pola ID lub [NazwaKlasy]Id traktowane są jako Primary Key danej tabeli.

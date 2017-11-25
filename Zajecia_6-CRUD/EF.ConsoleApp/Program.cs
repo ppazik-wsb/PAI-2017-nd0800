@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using EF.ConsoleApp.DataContexts;
 using EF.ConsoleApp.Models;
+using EF.ConsoleApp.Repositories;
 
 namespace EF.ConsoleApp
 {
@@ -25,6 +26,8 @@ namespace EF.ConsoleApp
 
             using (var dbCtx = new DefaultAppDbConnection())
             {
+                DishRepository dishes = new DishRepository(dbCtx);
+
                 bool closeApp = false;
                 while (closeApp == false)
                 {
@@ -34,24 +37,24 @@ namespace EF.ConsoleApp
                         {
                             case 1: // Wyświetlanie wszystkich wpisów
                                 Console.Clear();
-                                PrintAllDishes(dbCtx.Dishes.ToList());
+                                PrintAllDishes(dishes.GetAll());
                                 break;
                             case 2: // Create - Dodawanie nowego wpisu
-                                InsertNewManualDish(dbCtx.Dishes);
-                                dbCtx.SaveChanges();
+                                InsertNewManualDish(dishes);
+                                dishes.SaveChanges();
                                 break;
                             case 3: // Pobieranie konkretnego wpisu
-                                Console.WriteLine(PrintDish(FindDishByName(dbCtx.Dishes)));
+                                Console.WriteLine(PrintDish(FindDishByName(dishes)));
                                 break;
                             case 4: // Aktualizacja wpisu
                                 Console.Clear();
-                                EditDish(dbCtx.Dishes, FindDishByName(dbCtx.Dishes));
-                                dbCtx.SaveChanges();
+                                EditDish(FindDishByName(dishes));
+                                dishes.SaveChanges();
                                 Console.WriteLine("Zaktualizowano wpis!");
                                 break;
                             case 5: // Usuwanie wpisu
                                 Console.Clear();
-                                RemoveDish(dbCtx.Dishes);
+                                RemoveDish(dishes);
                                 dbCtx.SaveChanges();
                                 Console.WriteLine("Usunięto wpis!");
                                 break;
@@ -87,10 +90,11 @@ namespace EF.ConsoleApp
             }
         }
 
-        private static void EditDish(DbSet<Dish> dishes, Dish dish)
+        private static void EditDish(Dish dish)
         {
             Console.Clear();
-            Console.WriteLine("Znaleziono wpis!");
+            if (dish != null)
+                Console.WriteLine("Znaleziono wpis!");
             Console.WriteLine(PrintDish(dish));
 
             Console.WriteLine("\nJeśli pozostawisz pole puste, jego wartość nie zostanie zmieniona");
@@ -151,14 +155,14 @@ namespace EF.ConsoleApp
             }
         }
 
-        static Dish FindDishByName(DbSet<Dish> dbSet)
+        static Dish FindDishByName(IDishRepository dishRepository)
         {
             Console.Clear();
 
             Console.Write("Podaj nazwę dania: ");
             string query = Console.ReadLine();
 
-            return dbSet.Where(q => q.DishName.Contains(query)).First();
+            return dishRepository.GetByName(query).First();
         }
 
         static Dish FindDishById(DbSet<Dish> dbSet, int idDish)
@@ -166,11 +170,11 @@ namespace EF.ConsoleApp
             return dbSet.Where(q => q.DishId == idDish).Single();
         }
 
-        static void RemoveDish(DbSet<Dish> dbSet)
+        static void RemoveDish(IDishRepository dishRepository)
         {
             Console.WriteLine("Usuwanie wpisu");
 
-            PrintAllDishes(dbSet.ToList());
+            PrintAllDishes(dishRepository.GetAll());
 
             Console.Write("\n\nPodaj ID dania do usunięcia: ");
             int idDish;
@@ -179,7 +183,7 @@ namespace EF.ConsoleApp
                 Console.Write("Podaj poprawny ID: ");
             }
 
-            dbSet.Remove(FindDishById(dbSet, idDish));
+            dishRepository.Delete(idDish);
         }
 
         static string PrintDish(Dish dish)
@@ -202,8 +206,8 @@ namespace EF.ConsoleApp
         /// <summary>
         /// Ręczne dodanie (wpisując z konsoli) danie do bazy danych.
         /// </summary>
-        /// <param name="dbSet">DbSet do którego należy dodać danie</param>
-        static void InsertNewManualDish(DbSet<Dish> dbSet)
+        /// <param name="dishRepository">Repository do którego należy dodać danie</param>
+        static void InsertNewManualDish(IDishRepository dishRepository)
         {
             var newDish = new Dish();
 
@@ -227,7 +231,7 @@ namespace EF.ConsoleApp
 
             newDish.CreatedBy = Environment.UserName;
 
-            dbSet.Add(newDish);
+            dishRepository.Add(newDish);
         }
 
         static int Menu()
