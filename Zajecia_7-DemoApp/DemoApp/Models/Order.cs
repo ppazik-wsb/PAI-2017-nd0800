@@ -7,7 +7,7 @@ namespace DemoApp.Models
     {
         public int OrderId { get; set; }
         public string ApplicationUserId { get; set; }
-        public virtual IEnumerable<Food> OrderList { get; set; }
+        public virtual ICollection<Food> OrderItems { get; set; }
         public DateTime OrderDate { get; set; }
 
         public virtual ApplicationUser ApplicationUser { get; set; }
