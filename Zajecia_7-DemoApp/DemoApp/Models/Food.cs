@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DemoApp.Models
 {
@@ -14,7 +15,7 @@ namespace DemoApp.Models
   
         public enum FoodType
         {
-            Unknown,
+            FoodType,
             Fish,
             Meat,
             Mix,
@@ -24,6 +25,8 @@ namespace DemoApp.Models
 
         public int FoodId { get; set; }
         public string Name { get; set; }
+
+        [DataType(DataType.Currency)]
         public double Price { get; set; }
         
         public HotLevel? Hot { get; set; }

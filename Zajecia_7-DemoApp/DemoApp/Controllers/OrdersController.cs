@@ -10,13 +10,24 @@ using DemoApp.Models;
 
 namespace DemoApp.Controllers
 {
+
+    [Authorize(Roles = "foodAdmin")]
     public class OrdersController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Orders
-        public ActionResult Index()
+        public ActionResult Index(string sortBy)
         {
+            ViewBag.NameSortParam = String.IsNullOrEmpty(sortBy) ? "name_desc" : "";
+            ViewBag.DateSortParam = sortBy == "date" ? "date_desc": "date";
+            ViewBag.CountSortParam = sortBy == "count" ? "count_desc" : "count";
+            ViewBag.TotalSortParam = sortBy == "total" ? "total_desc" : "total";
+
+            var zamowienia = from s in db.Orders select s;
+
+
+
             return View(db.Orders.ToList());
         }
 

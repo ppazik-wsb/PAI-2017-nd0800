@@ -8,14 +8,15 @@
 
 <div>
     <h4>Order</h4>
+    <h6>Suma zamówienia: @Model.OrderItems.Sum(q => q.Price) PLN</h6>
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.ApplicationUserId)
+            @Html.DisplayNameFor(model => model.ApplicationUser.UserName)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.ApplicationUserId)
+            @Html.DisplayFor(model => model.ApplicationUser.UserName)
         </dd>
 
         <dt>
@@ -25,7 +26,22 @@
         <dd>
             @Html.DisplayFor(model => model.OrderDate)
         </dd>
-
+        
+        <dd>
+            <table class="table">
+                <tr>
+                    <th>Nazwa</th>
+                    <th>Cena</th>
+                    <th>Pikantność</th>
+                </tr>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>@Html.DisplayFor(mitem => item.Name)</tr>
+                    <tr>@Html.DisplayFor(mitem => item.Price)</tr>
+                    <tr>@Html.DisplayFor(mitem => item.Hot)</tr>
+                }
+            </table>
+        </dd>
     </dl>
 </div>
 <p>

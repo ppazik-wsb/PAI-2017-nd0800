@@ -10,6 +10,7 @@ using DemoApp.Models;
 
 namespace DemoApp.Controllers
 {
+    [Authorize(Roles = "foodAdmin")]
     public class FoodsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
