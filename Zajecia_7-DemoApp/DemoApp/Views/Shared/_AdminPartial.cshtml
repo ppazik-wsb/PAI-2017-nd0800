@@ -1,0 +1,12 @@
+﻿@using Microsoft.AspNet.Identity
+@if (Request.IsAuthenticated && User.IsInRole("foodAdmin"))
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            @Html.ActionLink("Dania", "Index", "Foods")
+        </li>
+        <li>
+            @Html.ActionLink("Zamowienia", "Index", "Orders")
+        </li>
+    </ul>
+}

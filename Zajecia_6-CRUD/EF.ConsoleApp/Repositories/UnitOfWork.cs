@@ -17,13 +17,7 @@ namespace EF.ConsoleApp.Repositories
         // public Repository<Dish> DishRepository
         public DishRepository DishRepository
         {
-            // Ewentualnie można zastosować.
-            //get
-            //{
-            //    // return this.dishRepository ?? new Repository<Dish>(context);
-            //    return dishRepository ?? new DishRepository(context);
-            //}
-
+                    // return this.dishRepository ?? new Repository<Dish>(context);
             get { return dishRepository ?? (dishRepository = new DishRepository(context)); }
         }
         

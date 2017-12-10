@@ -42,7 +42,7 @@ namespace EF.ConsoleApp
                                 break;
                             case 2: // Create - Dodawanie nowego wpisu
                                 InsertNewManualDish(unitOfWork.DishRepository);
-                                unitOfWork.DishRepository.SaveChanges();
+                                unitOfWork.Save();
                                 break;
                             case 3: // Pobieranie konkretnego wpisu
                                 Console.WriteLine(PrintDish(FindDishByName(unitOfWork.DishRepository)));
@@ -50,13 +50,13 @@ namespace EF.ConsoleApp
                             case 4: // Aktualizacja wpisu
                                 Console.Clear();
                                 EditDish(FindDishByName(unitOfWork.DishRepository));
-                                unitOfWork.DishRepository.SaveChanges();
+                                unitOfWork.Save();
                                 Console.WriteLine("Zaktualizowano wpis!");
                                 break;
                             case 5: // Usuwanie wpisu
                                 Console.Clear();
                                 RemoveDish(unitOfWork.DishRepository);
-                                dbCtx.SaveChanges();
+                                unitOfWork.Save();
                                 Console.WriteLine("Usunięto wpis!");
                                 break;
                             case 0: return 0;
